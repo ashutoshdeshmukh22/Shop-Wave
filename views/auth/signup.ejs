@@ -1,0 +1,103 @@
+<%- include('../includes/head.ejs') %>
+    </head>
+
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+            <main class="d-flex align-items-center min-vh-100 py-3 py-md-0 mt-3 mb-5">
+                <div class="container">
+                    <div class="card login-card">
+                        <div class="row no-gutters">
+                            <div class="col-md-5">
+                                <img src="./img/login.jpg" alt="login" class="login-card-img">
+                            </div>
+                            <div class="col-md-7">
+                                <div class="card-body">
+                                    <div class="brand-wrapper">
+                                        <img src="./img//logo.png" alt="logo" class="logo">
+                                    </div>
+                                    <p class="login-card-description">Create A Account</p>
+                                    <p class="">Adventure starts here 🚀</p>
+                                    <form action="/signup" method="POST" novalidate>
+                                        <div class="form-group">
+                                            <label for="username" class="sr-only">Username</label>
+                                            <input type="text" name="username" id="username" class="form-control"
+                                                placeholder="Username">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="email" class="sr-only">Email</label>
+                                            <input
+                                                class="<%= validationErrors.find(e => e.param === 'email') ? 'invalid form-control' : 'form-control' %>"
+                                                type="email" name="email" id="email" placeholder="Email"
+                                                value="<%= oldInput.email %>">
+                                        </div>
+                                        <div class="form-group mb-4">
+                                            <label for="password" class="sr-only">Password</label>
+                                            <input
+                                                class="<%= validationErrors.find(e => e.param === 'password') ? 'invalid form-control' : 'form-control' %>"
+                                                type="password" name="password" id="password" placeholder="***********"
+                                                value="<%= oldInput.password %>">
+                                            <label for="password" class="sr-only">Confirm Password</label>
+                                            <input
+                                                class="<%= validationErrors.find(e => e.param === 'confirmPassword') ? 'invalid form-control' : 'form-control' %>"
+                                                type="password" name="confirmPassword" id="confirmPassword"
+                                                placeholder="***********" value="<%= oldInput.confirmPassword %>">
+                                        </div>
+                                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        <input name="register" id="login" class="btn btn-block login-btn mb-4"
+                                            type="submit" value="Register">
+                                    </form>
+                                    <p class="login-card-footer-text">Already have an account? <a href="/login"
+                                            class="text-reset">Login here</a>
+                                    </p>
+                                    <% if (errorMessage) { %>
+                                        <div class="user-message user-message--error">
+                                            <%= errorMessage %>
+                                        </div>
+                                        <% } %>
+                                            <nav class="login-card-footer-nav">
+                                                <a href="#!">Terms of use.</a>
+                                                <a href="#!">Privacy policy</a>
+                                            </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <!-- <main>
+        <% if (errorMessage) { %>
+            <div class="user-message user-message--error"><%= errorMessage %></div>
+        <% } %>
+        <form class="login-form" action="/signup" method="POST" novalidate>
+            <div class="form-control">
+                <label for="email">E-Mail</label>
+                <input 
+                    class="<%= validationErrors.find(e => e.param === 'email') ? 'invalid' : '' %>"
+                    type="email" 
+                    name="email" 
+                    id="email" 
+                    value="<%= oldInput.email %>">
+            </div>
+            <div class="form-control">
+                <label for="password">Password</label>
+                <input 
+                    class="<%= validationErrors.find(e => e.param === 'password') ? 'invalid' : '' %>"
+                    type="password" 
+                    name="password" 
+                    id="password" 
+                    value="<%= oldInput.password %>">
+            </div>
+            <div class="form-control">
+                <label for="confirmPassword">Confirm Password</label>
+                <input 
+                    class="<%= validationErrors.find(e => e.param === 'confirmPassword') ? 'invalid' : '' %>"
+                    type="password" 
+                    name="confirmPassword" 
+                    id="confirmPassword" 
+                    value="<%= oldInput.confirmPassword %>">
+            </div>
+            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+            <button class="btn" type="submit">Signup</button>
+        </form>
+    </main> -->
+            <%- include('../includes/end.ejs') %>

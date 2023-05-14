@@ -1,0 +1,64 @@
+<%- include('../includes/head.ejs') %>
+    </head>
+
+    <body>
+        <%- include('../includes/navigation.ejs') %>
+            <main class="d-flex align-items-center min-vh-100 py-3 py-md-0">
+                <div class="container">
+                    <div class="card login-card">
+                        <div class="row no-gutters">
+                            <div class="col-md-5">
+                                <img src="./img/login.jpg" alt="login" class="login-card-img">
+                            </div>
+                            <div class="col-md-7">
+                                <div class="card-body">
+                                    <div class="brand-wrapper">
+                                        <img src="./img//logo.png" alt="logo" class="logo">
+                                    </div>
+                                    <p class="login-card-description">Forgot Password 🔒</p>
+                                    <p class="">Enter your email and we'll send you instructions to reset
+                                        your password</p>
+                                    <form action="/reset" method="POST">
+                                        <div class="form-group">
+                                            <label for="email" class="sr-only">Email</label>
+                                            <input type="email" name="email" id="email" class="form-control"
+                                                placeholder="Email address">
+                                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                                        </div>
+                                        <input name="send" id="send" class="btn btn-block login-btn mb-4" type="submit"
+                                            value="Send">
+                                    </form>
+                                    <% if (errorMessage) { %>
+                                        <div class="user-message user-message--error">
+                                            <%= errorMessage %>
+                                        </div>
+                                        <% } %>
+                                            <p class="login-card-footer-text"><a href="/login" class="text-reset">Login
+                                                    here</a>
+                                            </p>
+                                            <nav class="login-card-footer-nav">
+                                                <a href="#!">Terms of use.</a>
+                                                <a href="#!">Privacy policy</a>
+                                            </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <!-- <main>
+                <% if (errorMessage) { %>
+                    <div class="user-message user-message--error">
+                        <%= errorMessage %>
+                    </div>
+                    <% } %>
+                        <form class="login-form" action="/reset" method="POST">
+                            <div class="form-control">
+                                <label for="email">E-Mail</label>
+                                <input type="email" name="email" id="email">
+                            </div>
+                            <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+                            <button class="btn" type="submit">Reset Password</button>
+                        </form>
+            </main> -->
+            <%- include('../includes/end.ejs') %>
