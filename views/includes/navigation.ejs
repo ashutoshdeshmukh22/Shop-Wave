@@ -171,7 +171,7 @@
                             <% if (isAuthenticated) { %>
                                 <li><a class="" href="/orders">My Orders</a></li>
                                 <% } %>
-                                    <li><a href="#" class="<%= path === '/blog' ? 'active' : '' %>"
+                                    <li><a href="/blogs" class="<%= path === '/blog' ? 'active' : '' %>"
                                             href="/products">Blog</a>
                                     </li>
                                     <li><a href="#" class="<%= path === '/contact' ? 'active' : '' %>"
@@ -182,7 +182,12 @@
                 </div>
                 <div class="col-lg-3 col-md-3">
                     <div class="header__nav__option">
-                        <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
+                        <div class="shop__sidebar__search">
+                            <form action="/searchProducts" method="GET">
+                                <input type="text" name="search" placeholder="Search...">
+                                <button type="submit"><span class="icon_search"></span></button>
+                            </form>
+                        </div>
                         <% if (isAuthenticated) { %>
                             <a href="#"><img src="img/icon/heart.png" alt=""></a>
                             <a href="/cart"><img src="img/icon/cart.png" alt=""> <span>0</span></a>

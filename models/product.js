@@ -15,13 +15,21 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
-  image: {
+  imagePath: {
     type: String,
     required: true,
   },
   category: {
-    type: String,
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Category',
+  },
+  available: {
+    type: Boolean,
     required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
   },
   userId: {
     type: Schema.Types.ObjectId,

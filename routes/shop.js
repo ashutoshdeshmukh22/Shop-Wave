@@ -29,4 +29,10 @@ router.get('/orders', isAuth, shopController.getOrders);
 
 router.get('/orders/:orderId', isAuth, shopController.getInvoice);
 
+router.get('/getproducts/:category', shopController.getProductsByCategory);
+
+router.get('/searchProducts', shopController.getSearchProducts);
+
+router.get('/blogs', shopController.getBlogs);
+
 module.exports = router;

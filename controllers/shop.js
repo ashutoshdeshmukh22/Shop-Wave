@@ -8,39 +8,138 @@ const PDFDocument = require('pdfkit');
 
 const Product = require('../models/product');
 const Order = require('../models/order');
+const Category = require('../models/category');
 
 const ITEMS_PER_PAGE = 9;
 
-exports.getProducts = (req, res, next) => {
-  const page = +req.query.page || 1;
-  let totalItems;
+exports.getProducts = async (req, res, next) => {
+  try {
+    const page = +req.query.page || 1;
+    let totalItems;
 
-  Product.find()
-    .countDocuments()
-    .then((numProducts) => {
-      totalItems = numProducts;
-      return Product.find()
-        .skip((page - 1) * ITEMS_PER_PAGE)
-        .limit(ITEMS_PER_PAGE);
-    })
-    .then((products) => {
-      res.render('shop/product-list', {
-        prods: products,
-        pageTitle: 'Products',
-        path: '/products',
-        currentPage: page,
-        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
-        hasPreviousPage: page > 1,
-        nextPage: page + 1,
-        previousPage: page - 1,
-        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
-      });
-    })
-    .catch((err) => {
-      const error = new Error(err);
-      error.httpStatusCode = 500;
-      return next(error);
+    const numProducts = await Product.find().countDocuments();
+    totalItems = numProducts;
+
+    const products = await Product.find({})
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE)
+      .sort('-createdAt')
+      .populate('category');
+
+    const categories = await Category.find({});
+
+    res.render('shop/product-list', {
+      prods: products,
+      categories: categories,
+      pageTitle: 'Products',
+      path: '/products',
+      currentPage: page,
+      hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
     });
+  } catch (error) {
+    console.log(error);
+    res.redirect('/');
+  }
+
+  // const page = +req.query.page || 1;
+  // let totalItems;
+  // Product.find()
+  //   .countDocuments()
+  //   .then((numProducts) => {
+  //     totalItems = numProducts;
+  //     return Product.find()
+  //       .skip((page - 1) * ITEMS_PER_PAGE)
+  //       .limit(ITEMS_PER_PAGE);
+  //   })
+  //   .then((products) => {
+  //     res.render('shop/product-list', {
+  //       prods: products,
+  //       pageTitle: 'Products',
+  //       path: '/products',
+  //       currentPage: page,
+  //       hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+  //       hasPreviousPage: page > 1,
+  //       nextPage: page + 1,
+  //       previousPage: page - 1,
+  //       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+  //     });
+  //   })
+  //   .catch((err) => {
+  //     const error = new Error(err);
+  //     error.httpStatusCode = 500;
+  //     return next(error);
+  //   });
+};
+
+exports.getProductsByCategory = async (req, res, next) => {
+  try {
+    const page = +req.query.page || 1;
+    let totalItems;
+    const numProducts = await Product.find().countDocuments();
+    totalItems = numProducts;
+    const foundCategory = await Category.findOne({
+      title: req.params.category,
+    });
+    const allProducts = await Product.find({ category: foundCategory._id })
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE)
+      .sort('-createdAt')
+      .populate('category');
+
+    const categories = await Category.find({});
+
+    res.render('shop/product-list', {
+      prods: allProducts,
+      categories: categories,
+      pageTitle: 'Products',
+      path: '/products',
+      currentPage: page,
+      hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.getSearchProducts = async (req, res, next) => {
+  try {
+    const page = +req.query.page || 1;
+    const categories = await Category.find({});
+
+    const products = await Product.find({
+      title: { $regex: req.query.search, $options: 'i' },
+    })
+      .skip((page - 1) * ITEMS_PER_PAGE)
+      .limit(ITEMS_PER_PAGE)
+      .sort('-createdAt')
+      .populate('category')
+      .exec();
+    const count = await Product.count({
+      title: { $regex: req.query.search, $options: 'i' },
+    });
+    res.render('shop/product-list', {
+      prods: products,
+      categories: categories,
+      pageTitle: 'Search Results',
+      path: '/getSearchProducts',
+      currentPage: page,
+      hasNextPage: ITEMS_PER_PAGE * page < count,
+      hasPreviousPage: page > 1,
+      nextPage: page + 1,
+      previousPage: page - 1,
+      lastPage: Math.ceil(count / ITEMS_PER_PAGE),
+    });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 exports.getProduct = (req, res, next) => {
@@ -70,8 +169,8 @@ exports.getIndex = (req, res, next) => {
     .then((numProducts) => {
       totalItems = numProducts;
       return Product.find()
-        .skip((page - 1) * ITEMS_PER_PAGE)
-        .limit(ITEMS_PER_PAGE);
+        .skip((page - 1) * 4)
+        .limit(4);
     })
     .then((products) => {
       res.render('shop/index', {
@@ -79,11 +178,11 @@ exports.getIndex = (req, res, next) => {
         pageTitle: 'Shop',
         path: '/',
         currentPage: page,
-        hasNextPage: ITEMS_PER_PAGE * page < totalItems,
+        hasNextPage: 4 * page < totalItems,
         hasPreviousPage: page > 1,
         nextPage: page + 1,
         previousPage: page - 1,
-        lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+        lastPage: Math.ceil(totalItems / 4),
       });
     })
     .catch((err) => {
@@ -329,4 +428,29 @@ exports.getInvoice = (req, res, next) => {
       // file.pipe(res);
     })
     .catch((err) => next(err));
+};
+
+exports.getBlogs = async (req, res, next) => {
+  const url =
+    'https://fashion-industry-news-data-collection.p.rapidapi.com/?q=%22fashion%20week%22&ts=1675159335000&tsi=1677067077000';
+  const options = {
+    method: 'GET',
+    headers: {
+      'X-RapidAPI-Key': 'f1d83691b8msh7b98dba7406750ap123974jsn4265532793e6',
+      'X-RapidAPI-Host': 'fashion-industry-news-data-collection.p.rapidapi.com',
+    },
+  };
+
+  try {
+    const response = await fetch(url, options);
+    const blogs = await response.text();
+    res.send(blogs);
+  } catch (error) {
+    return next(error);
+  }
+
+  // res.render('blog', {
+  //   path: '/blog',
+  //   pageTitle: 'Blogs',
+  // });
 };
