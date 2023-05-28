@@ -431,26 +431,9 @@ exports.getInvoice = (req, res, next) => {
 };
 
 exports.getBlogs = async (req, res, next) => {
-  const url =
-    'https://fashion-industry-news-data-collection.p.rapidapi.com/?q=%22fashion%20week%22&ts=1675159335000&tsi=1677067077000';
-  const options = {
-    method: 'GET',
-    headers: {
-      'X-RapidAPI-Key': 'f1d83691b8msh7b98dba7406750ap123974jsn4265532793e6',
-      'X-RapidAPI-Host': 'fashion-industry-news-data-collection.p.rapidapi.com',
-    },
-  };
 
-  try {
-    const response = await fetch(url, options);
-    const blogs = await response.text();
-    res.send(blogs);
-  } catch (error) {
-    return next(error);
-  }
-
-  // res.render('blog', {
-  //   path: '/blog',
-  //   pageTitle: 'Blogs',
-  // });
+   res.render('blog', {
+    path: '/blog',
+    pageTitle: 'Blogs',
+  });
 };
