@@ -9,6 +9,7 @@ const PDFDocument = require('pdfkit');
 const Product = require('../models/product');
 const Order = require('../models/order');
 const Category = require('../models/category');
+const User = require('../models/user');
 
 const ITEMS_PER_PAGE = 9;
 
@@ -39,6 +40,7 @@ exports.getProducts = async (req, res, next) => {
       nextPage: page + 1,
       previousPage: page - 1,
       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+      user: req.session.user,
     });
   } catch (error) {
     console.log(error);
@@ -103,6 +105,7 @@ exports.getProductsByCategory = async (req, res, next) => {
       nextPage: page + 1,
       previousPage: page - 1,
       lastPage: Math.ceil(totalItems / ITEMS_PER_PAGE),
+      user: req.session.user,
     });
   } catch (error) {
     return next(error);
@@ -136,6 +139,7 @@ exports.getSearchProducts = async (req, res, next) => {
       nextPage: page + 1,
       previousPage: page - 1,
       lastPage: Math.ceil(count / ITEMS_PER_PAGE),
+      user: req.session.user,
     });
   } catch (error) {
     return next(error);
@@ -151,6 +155,7 @@ exports.getProduct = (req, res, next) => {
         product: product,
         pageTitle: product.title,
         path: '/products',
+        user: req.session.user,
       });
     })
     .catch((err) => {
@@ -183,6 +188,7 @@ exports.getIndex = (req, res, next) => {
         nextPage: page + 1,
         previousPage: page - 1,
         lastPage: Math.ceil(totalItems / 4),
+        user: req.session.user,
       });
     })
     .catch((err) => {
@@ -202,6 +208,7 @@ exports.getCart = (req, res, next) => {
         path: '/cart',
         pageTitle: 'Your Cart',
         products: products,
+        user: req.session.user,
       });
     })
     .catch((err) => {
@@ -283,6 +290,7 @@ exports.getCheckout = (req, res, next) => {
         products: products,
         totalSum: total,
         sessionId: session.id,
+        user: req.session.user,
       });
     })
     .catch((err) => {
@@ -293,6 +301,18 @@ exports.getCheckout = (req, res, next) => {
 };
 
 exports.getCheckoutSuccess = (req, res, next) => {
+  const {
+    firstname,
+    lastname,
+    country,
+    address,
+    city,
+    state,
+    pincode,
+    phone,
+    email,
+  } = req.body;
+  console.log(req.body);
   req.user
     .populate('cart.items.productId')
     .execPopulate()
@@ -306,6 +326,17 @@ exports.getCheckoutSuccess = (req, res, next) => {
           userId: req.user,
         },
         products: products,
+        billingDetails: {
+          firstName: firstname,
+          lastName: lastname,
+          country: country,
+          address: address,
+          city: city,
+          state: state,
+          pincode: pincode,
+          email: email,
+          phone: phone,
+        },
       });
       return order.save();
     })
@@ -359,6 +390,7 @@ exports.getOrders = (req, res, next) => {
         path: '/orders',
         pageTitle: 'Your Orders',
         orders: orders,
+        user: req.session.user,
       });
     })
     .catch((err) => {
@@ -368,72 +400,115 @@ exports.getOrders = (req, res, next) => {
     });
 };
 
-exports.getInvoice = (req, res, next) => {
+exports.getInvoice = async (req, res, next) => {
   const orderId = req.params.orderId;
-  Order.findById(orderId)
-    .then((order) => {
-      if (!order) {
-        return next(new Error('No order found.'));
-      }
-      if (order.user.userId.toString() !== req.user._id.toString()) {
-        return next(new Error('Unauthorized'));
-      }
-      const invoiceName = 'invoice-' + orderId + '.pdf';
-      const invoicePath = path.join('data', 'invoices', invoiceName);
+  const order = await Order.findById(orderId);
 
-      const pdfDoc = new PDFDocument();
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader(
-        'Content-Disposition',
-        'inline; filename="' + invoiceName + '"'
-      );
-      pdfDoc.pipe(fs.createWriteStream(invoicePath));
-      pdfDoc.pipe(res);
+  if (!order) {
+    return next(new Error('No order found.'));
+  }
+  if (order.user.userId.toString() !== req.user._id.toString()) {
+    return next(new Error('Unauthorized'));
+  }
 
-      pdfDoc.fontSize(26).text('Invoice', {
-        underline: true,
-      });
-      pdfDoc.text('-----------------------');
-      let totalPrice = 0;
-      order.products.forEach((prod) => {
-        totalPrice += prod.quantity * prod.product.price;
-        pdfDoc
-          .fontSize(14)
-          .text(
-            prod.product.title +
-              ' - ' +
-              prod.quantity +
-              ' x ' +
-              '$' +
-              prod.product.price
-          );
-      });
-      pdfDoc.text('---');
-      pdfDoc.fontSize(20).text('Total Price: $' + totalPrice);
+  // Get user details
+  const customerInfo = await User.findOne({ _id: order.user.userId });
+  const invoiceName = 'invoice-' + orderId + '.pdf';
+  const invoicePath = path.join('data', 'invoices', invoiceName);
 
-      pdfDoc.end();
-      // fs.readFile(invoicePath, (err, data) => {
-      //   if (err) {
-      //     return next(err);
-      //   }
-      //   res.setHeader('Content-Type', 'application/pdf');
-      //   res.setHeader(
-      //     'Content-Disposition',
-      //     'inline; filename="' + invoiceName + '"'
-      //   );
-      //   res.send(data);
-      // });
-      // const file = fs.createReadStream(invoicePath);
+  const pdfDoc = new PDFDocument();
 
-      // file.pipe(res);
-    })
-    .catch((err) => next(err));
+  res.setHeader('Content-Type', 'application/pdf');
+  res.setHeader(
+    'Content-Disposition',
+    'inline; filename="' + invoiceName + '"'
+  );
+  pdfDoc.pipe(fs.createWriteStream(invoicePath));
+  pdfDoc.pipe(res);
+
+  pdfDoc.image(__dirname + '/logo.png', 30, 20, {
+    width: 130,
+    height: 50,
+  });
+  pdfDoc
+    .font('Helvetica')
+    .fontSize(14)
+    .text('Order Invoice/Bill Receipt', 400, 30, { width: 200 });
+  pdfDoc.fontSize(10).text(new Date().toUTCString(), 400, 46, { width: 200 });
+
+  pdfDoc.font('Helvetica-Bold').text('Sold by:', 30, 100);
+  pdfDoc.font('Helvetica').text('Shop Wave', 30, 115, { width: 250 });
+  pdfDoc.text('Sector 32A, IICMR, Nigdi', 30, 130, { width: 250 });
+  pdfDoc.text('Pune' + ' ' + '435011', 30, 145, { width: 250 });
+  pdfDoc.text('Maharashtra' + ' ' + 'India', 30, 160, { width: 250 });
+
+  pdfDoc.font('Helvetica-Bold').text('Customer details:', 400, 100);
+  pdfDoc
+    .font('Helvetica')
+    .text(customerInfo.username, 400, 115, { width: 250 });
+  pdfDoc.text(customerInfo.email, 400, 130, { width: 250 });
+  // pdfDoc.text(customerInfo.address, 400, 130, { width: 250 });
+  // pdfDoc.text(customerInfo.city + ' ' + customerInfo.pincode, 400, 145, {
+  //   width: 250,
+  // });
+  // pdfDoc.text(customerInfo.state + ' ' + customerInfo.country, 400, 160, {
+  //   width: 250,
+  // });
+
+  pdfDoc.text('Order No:' + 'Order No', 30, 195, { width: 250 });
+  pdfDoc.text('Invoice No:' + 'Invoice No', 30, 210, { width: 250 });
+  pdfDoc.text('Date:' + new Date().toUTCString(), 30, 225, {
+    width: 250,
+  });
+
+  pdfDoc.rect(7, 250, 595, 20).fill('#FC427B').stroke('#FC427B');
+  pdfDoc.fillColor('#fff').text('No.', 20, 256, { width: 30 });
+  pdfDoc.text('Product', 60, 256, { width: 300 }); // Extended width for the "Product" column
+  pdfDoc.text('Qty', 390, 256, { width: 50 });
+  pdfDoc.text('Price', 460, 256, { width: 50 });
+  pdfDoc.text('Total Price', 530, 256, { width: 70 });
+
+  let productNo = 1;
+  let totalPrice = 0;
+  let orderPrice = 0;
+
+  order.products.forEach((element) => {
+    console.log('adding', element._id);
+    totalPrice += element.quantity * element.product.price;
+    orderPrice += element.quantity * element.product.price;
+    let y = 256 + productNo * 20;
+    pdfDoc.fillColor('#000').text(productNo.toString(), 20, y, { width: 30 });
+    pdfDoc.text(element.product.title, 60, y, { width: 300 }); // Adjusted width for the product title
+    pdfDoc.text(element.quantity, 390, y, { width: 50 });
+    pdfDoc.text(element.product.price, 460, y, { width: 50 });
+    pdfDoc.text(totalPrice, 530, y, { width: 70 });
+    totalPrice = 0;
+    productNo++;
+  });
+  pdfDoc
+    .rect(7, 256 + productNo * 20, 595, 0.2)
+    .fillColor('#000')
+    .stroke('#000');
+  productNo++;
+
+  pdfDoc.font('Helvetica-Bold').text('Total:', 400, 256 + productNo * 17);
+  pdfDoc.font('Helvetica-Bold').text(orderPrice, 500, 256 + productNo * 17);
+
+  pdfDoc.end();
 };
 
 exports.getBlogs = async (req, res, next) => {
-
-   res.render('blog', {
+  res.render('blog', {
     path: '/blog',
     pageTitle: 'Blogs',
+    user: req.session.user,
+  });
+};
+
+exports.getContactUs = (req, res, next) => {
+  res.render('contact-us', {
+    path: '/contact-us',
+    pageTitle: 'Contact Us',
+    user: req.session.user,
   });
 };

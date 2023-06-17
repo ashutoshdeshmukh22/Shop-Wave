@@ -35,4 +35,8 @@ router.get('/searchProducts', shopController.getSearchProducts);
 
 router.get('/blogs', shopController.getBlogs);
 
+router.get('/contact-us', shopController.getContactUs);
+
+router.post('/post-order', shopController.postOrder);
+
 module.exports = router;

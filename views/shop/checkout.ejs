@@ -29,7 +29,7 @@
             <section class="checkout spad">
                 <div class="container">
                     <div class="checkout__form">
-                        <form action="#">
+                        <form>
                             <div class="row">
                                 <div class="col-lg-8 col-md-6">
                                     <h6 class="checkout__title">Billing Details</h6>
@@ -37,48 +37,48 @@
                                         <div class="col-lg-6">
                                             <div class="checkout__input">
                                                 <p>Fist Name<span>*</span></p>
-                                                <input type="text">
+                                                <input type="text" name="firstname">
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
                                             <div class="checkout__input">
                                                 <p>Last Name<span>*</span></p>
-                                                <input type="text">
+                                                <input type="text" name="lastname">
                                             </div>
                                         </div>
                                     </div>
                                     <div class="checkout__input">
                                         <p>Country<span>*</span></p>
-                                        <input type="text">
+                                        <input type="text" name="country">
                                     </div>
                                     <div class="checkout__input">
                                         <p>Address<span>*</span></p>
-                                        <input type="text" placeholder="Street Address" class="checkout__input__add">
-                                        <input type="text" placeholder="Apartment, suite, unite ect (optinal)">
+                                        <input type="text" placeholder="Address" class="checkout__input__add"
+                                            name="address">
                                     </div>
                                     <div class="checkout__input">
-                                        <p>Town/City<span>*</span></p>
-                                        <input type="text">
+                                        <p>City<span>*</span></p>
+                                        <input type="text" name="city">
                                     </div>
                                     <div class="checkout__input">
-                                        <p>Country/State<span>*</span></p>
-                                        <input type="text">
+                                        <p>State<span>*</span></p>
+                                        <input type="text" name="state">
                                     </div>
                                     <div class="checkout__input">
                                         <p>Postcode / ZIP<span>*</span></p>
-                                        <input type="text">
+                                        <input type="text" name="pincode">
                                     </div>
                                     <div class="row">
                                         <div class="col-lg-6">
                                             <div class="checkout__input">
                                                 <p>Phone<span>*</span></p>
-                                                <input type="text">
+                                                <input type="text" name="phone">
                                             </div>
                                         </div>
                                         <div class="col-lg-6">
                                             <div class="checkout__input">
                                                 <p>Email<span>*</span></p>
-                                                <input type="text">
+                                                <input type="text" name="email">
                                             </div>
                                         </div>
                                     </div>
@@ -90,14 +90,14 @@
                                         <% products.forEach(p=> { %>
                                             <ul class="checkout__total__products">
                                                 <li>
-                                                    <%= p.productId.title %> (<%= p.quantity %>) - <span>$ <%= p.total
+                                                    <%= p.productId.title %> (<%= p.quantity %>) - <span>₹ <%= p.total
                                                                     %>
                                                             </span>
                                                 </li>
                                             </ul>
                                             <% }) %>
                                                 <ul class="checkout__total__all">
-                                                    <li>Total <span>$ <%= totalSum %></span></li>
+                                                    <li>Total <span>₹ <%= totalSum %></span></li>
                                                 </ul>
                                                 <button id="order-btn" class="site-btn">PLACE ORDER</button>
                                                 <script src="https://js.stripe.com/v3/"></script>

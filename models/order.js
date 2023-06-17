@@ -6,20 +6,54 @@ const orderSchema = new Schema({
   products: [
     {
       product: { type: Object, required: true },
-      quantity: { type: Number, required: true }
-    }
+      quantity: { type: Number, required: true },
+    },
   ],
   user: {
     email: {
       type: String,
-      required: true
+      required: true,
     },
     userId: {
       type: Schema.Types.ObjectId,
       required: true,
-      ref: 'User'
-    }
-  }
+      ref: 'User',
+    },
+  },
+  billingDetails: {
+    firstName: {
+      type: String,
+      required: false,
+    },
+    lastName: {
+      type: String,
+      required: false,
+    },
+    country: {
+      type: String,
+      required: false,
+    },
+    address: {
+      type: String,
+      required: false,
+    },
+    city: {
+      type: String,
+      required: false,
+    },
+    pincode: {
+      type: String,
+      required: false,
+    },
+    phone: {
+      type: String,
+      required: false,
+    },
+    email: {
+      type: String,
+      required: false,
+    },
+  },
 });
 
 module.exports = mongoose.model('Order', orderSchema);
