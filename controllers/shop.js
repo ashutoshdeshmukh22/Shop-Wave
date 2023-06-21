@@ -1,8 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const stripe = require('stripe')(
-  'sk_test_51MrwpKSFge0RON0Bc8UVB2ESBHCBHNKErEEFT0D3fJ0zgoXXloSJrGjrVrKzXInj3j7Nx36dqse3L2xYhDvcdFRV00qR9b3626'
-);
+const stripe = require('stripe')(process.env.STRIPE_SECRET);
 
 const PDFDocument = require('pdfkit');
 
@@ -264,24 +262,43 @@ exports.getCheckout = (req, res, next) => {
 
       return stripe.checkout.sessions.create({
         payment_method_types: ['card'],
-        line_items: products.map((p) => {
-          return {
-            price_data: {
-              currency: 'inr',
-              unit_amount: p.productId.price * 100,
-              product_data: {
-                name: p.productId.title,
-                description: p.productId.description,
-              },
+        line_items: products.map((p) => ({
+          price_data: {
+            currency: 'inr',
+            unit_amount: Math.round(p.productId.price * 100),
+            product_data: {
+              name: p.productId.title,
+              description: p.productId.description,
             },
-            quantity: p.quantity,
-          };
-        }),
+          },
+          quantity: p.quantity,
+        })),
         mode: 'payment',
         success_url:
-          req.protocol + '://' + req.get('host') + '/checkout/success', // => http://localhost:3000
+          req.protocol + '://' + req.get('host') + '/checkout/success',
         cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel',
       });
+
+      // return stripe.checkout.sessions.create({
+      //   payment_method_types: ['card'],
+      //   line_items: products.map((p) => {
+      //     return {
+      //       price_data: {
+      //         currency: 'inr',
+      //         unit_amount: p.productId.price * 100,
+      //         product_data: {
+      //           name: p.productId.title,
+      //           description: p.productId.description,
+      //         },
+      //       },
+      //       quantity: p.quantity,
+      //     };
+      //   }),
+      //   mode: 'payment',
+      //   success_url:
+      //     req.protocol + '://' + req.get('host') + '/checkout/success', // => http://localhost:3000
+      //   cancel_url: req.protocol + '://' + req.get('host') + '/checkout/cancel',
+      // });
     })
     .then((session) => {
       res.render('shop/checkout', {
@@ -296,7 +313,12 @@ exports.getCheckout = (req, res, next) => {
     .catch((err) => {
       const error = new Error(err);
       error.httpStatusCode = 500;
-      return next(error);
+      next(error);
+      return res.render('500', {
+        path: '',
+        pageTitle: 'There is a Problem',
+        user: req.session.user,
+      });
     });
 };
 
