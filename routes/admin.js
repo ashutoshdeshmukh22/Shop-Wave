@@ -47,9 +47,9 @@ const AdminBro = require('admin-bro');
 const AdminBroExpress = require('@admin-bro/express');
 const AdminBroMongoose = require('@admin-bro/mongoose');
 const User = require('../models/user.js');
-const Product = require('../models/product.js');
-const Order = require('../models/order.js');
-const Category = require('../models/category.js');
+const Order = require('../models/Order');
+const Category = require('../models/Category');
+const Product = require('../models/Product');
 
 const mongoose = require('mongoose');
 
@@ -116,6 +116,9 @@ const adminBro = new AdminBro({
   },
   dashboard: {
     component: AdminBro.bundle('../components/admin-dashboard-component.jsx'),
+  },
+  reports: {
+    component: AdminBro.bundle('../components/admin-reports-component.jsx'),
   },
 });
 

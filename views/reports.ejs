@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>
+        <%= pageTitle %>
+    </title>
+    <link rel="stylesheet" href="/css/main.css">
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@300;400;600;700;800;900&display=swap"
+        rel="stylesheet">
+
+    <!-- Css Styles -->
+    <link rel="stylesheet" href="/css/bootstrap.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/font-awesome.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/elegant-icons.css" type="text/css">
+    <link rel="stylesheet" href="/css/magnific-popup.css" type="text/css">
+    <link rel="stylesheet" href="/css/nice-select.css" type="text/css">
+    <link rel="stylesheet" href="/css/owl.carousel.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/slicknav.min.css" type="text/css">
+    <link rel="stylesheet" href="/css/style.css" type="text/css">
+    <link href="https://fonts.googleapis.com/css?family=Karla:400,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.materialdesignicons.com/4.8.95/css/materialdesignicons.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="./css/login.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.css" />
+    <style>
+        .chart-container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+    </style>
+    <script type="text/javascript">
+        window.onload = function () {
+
+            // Bar Chart
+            var totalSales = '<%- JSON.stringify(salesdata) %>'
+            var barChart = new CanvasJS.Chart("barChartContainer", {
+                theme: "light1", // "light2", "dark1", "dark2"
+                animationEnabled: false, // change to true		
+                title: {
+                    text: "Sales (By Orders)"
+                },
+                data: [
+                    {
+                        // Change type to "bar", "area", "spline", "pie",etc.
+                        type: "column",
+                        dataPoints: JSON.parse(totalSales)
+                    }
+                ]
+            });
+            barChart.render();
+
+            // pieChart
+
+            var totalProducts = '<%- JSON.stringify(allproducts) %>'
+            var pieChart = new CanvasJS.Chart("pieChartContainer", {
+                theme: "light1", // "light2", "dark1", "dark2"
+                animationEnabled: false, // change to true		
+                title: {
+                    text: "Total Products"
+                },
+                data: [
+                    {
+                        // Change type to "bar", "area", "spline", "pie",etc.
+                        type: "pie",
+                        dataPoints: JSON.parse(totalProducts)
+                    }
+                ]
+            });
+            pieChart.render();
+
+            var revenueData = '<%- JSON.stringify(revenue) %>'
+            //areaChart
+            var areaChart = new CanvasJS.Chart("areaChartContainer", {
+                theme: "light1", // "light2", "dark1", "dark2"
+                animationEnabled: false, // change to true		
+                title: {
+                    text: "Revenue (₹)"
+                },
+                data: [
+                    {
+                        // Change type to "bar", "area", "spline", "pie",etc.
+                        type: "area",
+                        dataPoints: JSON.parse(revenueData)
+                    }
+                ]
+            });
+            areaChart.render();
+
+            var inventoryData = '<%- JSON.stringify(inventory) %>'
+            // spineChart
+            var spineChart = new CanvasJS.Chart("spineChartContainer", {
+                theme: "light1", // "light2", "dark1", "dark2"
+                animationEnabled: false, // change to true		
+                title: {
+                    text: "Inventory (By Category)"
+                },
+                data: [
+                    {
+                        // Change type to "bar", "area", "spline", "pie",etc.
+                        type: "bar",
+                        dataPoints: JSON.parse(inventoryData)
+                    }
+                ]
+            });
+            spineChart.render();
+
+        }
+    </script>
+</head>
+
+<body>
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+
+    <header class="main-header">
+        <!-- Offcanvas Menu Begin -->
+        <div class="offcanvas-menu-overlay"></div>
+        <div class="offcanvas-menu-wrapper">
+
+            <div class="offcanvas__option">
+                <div class="offcanvas__links">
+                    <% if (!isAuthenticated) { %>
+                        <a class="<%= path === '/login' ? 'active' : '' %>" href="/login">Login</a>
+                        <a class="<%= path === '/signup' ? 'active' : '' %>" href="/signup">Signup</a>
+                        <% } else { %>
+
+                            <form action="/logout" method="post">
+                                <button type="submit">Logout</button>
+                            </form>
+                            <% } %>
+                </div>
+            </div>
+            <div class="offcanvas__nav__option">
+                <a href="#" class="search-switch"><img src="img/icon/search.png" alt=""></a>
+                <% if (isAuthenticated) { %>
+                    <a href="#"><img src="img/icon/heart.png" alt=""></a>
+                    <a href="/cart"><img src="img/icon/cart.png" alt=""> <span>0</span></a>
+                    <div class="price">
+                        <%= user.cart.totalCartAmount %>
+                    </div>
+                    <% } %>
+            </div>
+
+            <div id="mobile-menu-wrap"></div>
+            <div class="offcanvas__text">
+                <p>Free shipping, 30-day return or refund guarantee.</p>
+            </div>
+        </div>
+        <!-- Offcanvas Menu End -->
+
+        <!-- Header Section Begin -->
+        <header class="header">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-3">
+                        <div class="header__logo">
+                            <a href="/"><img src="img/logo.png" alt=""></a>
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-6">
+
+                    </div>
+                </div>
+            </div>
+            <div class="canvas__open"><i class="fa fa-bars"></i></div>
+            </div>
+        </header>
+        <!-- Header Section End -->
+    </header>
+    <!-- Breadcrumb Section Begin -->
+    <section class="breadcrumb-option">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="breadcrumb__text">
+                        <h4>Reports</h4>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- Blog Section Begin -->
+
+    <section class="blog spad">
+        <div class="container">
+            <div class="row mb-5">
+                <div class="col-lg-12 col-md-6 col-sm-6">
+                    <div id="areaChartContainer" style="height: 370px; width: 100%;"></div>
+                </div>
+            </div>
+            <div class="row mb-5">
+                <div class="col-lg-12 col-md-6 col-sm-6">
+                    <div id="spineChartContainer" style="height: 370px; width: 100%;"></div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12 col-md-6 col-sm-6">
+                    <div class="chart-container">
+                        <div id="barChartContainer" style="height: 370px; width: 100%;"></div>
+                        <div id="pieChartContainer" style="height: 370px; width: 100%;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Section End -->
+
+
+
+    <script src="https://cdn.canvasjs.com/canvasjs.min.js"> </script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
+    <!-- Footer Section Begin -->
+    <footer class="footer">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="footer__copyright__text">
+                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                        <p>Copyright ©
+                            <script>
+                                document.write(new Date().getFullYear());
+                            </script>
+                            All rights reserved | Shopwave
+                        </p>
+                        <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer Section End -->
+
+    <!-- Search Begin -->
+    <div class="search-model">
+        <div class="h-100 d-flex align-items-center justify-content-center">
+            <div class="search-close-switch">+</div>
+            <form class="search-model-form">
+                <input type="text" id="search-input" placeholder="Search here.....">
+            </form>
+        </div>
+    </div>
+    <!-- Search End -->
+
+    <!-- Js Plugins -->
+    <script src="/js/jquery-3.3.1.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script src="/js/jquery.nice-select.min.js"></script>
+    <script src="/js/jquery.nicescroll.min.js"></script>
+    <script src="/js/jquery.magnific-popup.min.js"></script>
+    <script src="/js/jquery.countdown.min.js"></script>
+    <script src="/js/jquery.slicknav.js"></script>
+    <script src="/js/mixitup.min.js"></script>
+    <script src="/js/owl.carousel.min.js"></script>
+    <script src="/js/main.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+</body>
+
+</html>

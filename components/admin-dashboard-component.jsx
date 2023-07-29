@@ -1,8 +1,9 @@
 import React from 'react';
 import styled from 'styled-components';
+import Reports from './admin-reports-component';
 
 const Title = styled.h1`
-  font-size: 3em;
+  font-size: 2em;
   color: #000;
   font-weight: bold;
   line-height: 1em;
@@ -16,7 +17,7 @@ const Lead = styled.p`
 `;
 
 const Wrapper = styled.section`
-  padding: 4em;
+  padding: 1em;
   text-align: center;
   background: white;
 `;
@@ -31,11 +32,8 @@ const Dashboard = () => {
     <div>
       <Wrapper>
         <Title>Welcome to the Admin Panel</Title>
-        <Lead>
-          Here you can manage your products and categories as well as view users
-          and their orders.
-        </Lead>
       </Wrapper>
+      <Reports />
     </div>
   );
 };
